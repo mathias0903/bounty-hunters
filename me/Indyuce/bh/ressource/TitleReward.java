@@ -5,14 +5,14 @@ public enum TitleReward {
 	HEAD_COLLECTOR("Head Collector", 2),
 	EXPERIENCED_HUNTER("Experienced Hunter", 3),
 	GREEDY_HUNTER("Greedy Hunter", 4),
-	DEAD_OR_ALIVE("'Dead or Alive'", 5),
+	DEAD_OR_ALIVE("Dead or Alive", 5),
 	BLOODTHIRSTY("Bloodthirsty", 6),
 	BOUNTY_TRACKER("Bounty Tracker", 7),
-	BOUNTY_HUNTER("#star# Bounty Hunter #star#", 8),
+	BOUNTY_HUNTER("%star% Bounty Hunter %star%", 8),
 	;
 
 	public String title;
-	public int level = -1;
+	public int level;
 	
 	private TitleReward(String title, int level) {
 	    this.title = title;
