@@ -25,8 +25,7 @@ public class ConfigData {
 	}
 
 	public static FileConfiguration getCD(Plugin plugin, String path, String name) {
-		FileConfiguration config = YamlConfiguration
-				.loadConfiguration(new File(plugin.getDataFolder() + path, name + ".yml"));
+		FileConfiguration config = YamlConfiguration.loadConfiguration(new File(plugin.getDataFolder() + path, name + ".yml"));
 		return config;
 	}
 

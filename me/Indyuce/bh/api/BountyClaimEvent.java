@@ -39,7 +39,7 @@ public class BountyClaimEvent extends Event implements Cancellable {
 	public static HandlerList getHandlerList() {
 		return handlers;
 	}
-	
+
 	public void setReward(double reward) {
 		bounty.setReward(reward);
 	}

@@ -8,14 +8,13 @@ public enum TitleReward {
 	DEAD_OR_ALIVE("Dead or Alive", 5),
 	BLOODTHIRSTY("Bloodthirsty", 6),
 	BOUNTY_TRACKER("Bounty Tracker", 7),
-	BOUNTY_HUNTER("%star% Bounty Hunter %star%", 8),
-	;
+	BOUNTY_HUNTER("%star% Bounty Hunter %star%", 8),;
 
 	public String title;
 	public int level;
-	
+
 	private TitleReward(String title, int level) {
-	    this.title = title;
-	    this.level = level;
+		this.title = title;
+		this.level = level;
 	}
 }

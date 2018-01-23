@@ -14,14 +14,14 @@ public enum MessagesParams {
 	CLICK_UP_BOUNTY("Shift Click to up the reward of %percent%%."),
 	CURRENT_HUNTERS("There are §f%hunters% §7players tracking him."),
 	NO_TITLE("&cNo title"),
-	
-	GUI_NAME("Bounties"),
-	
-	LEADERBOARD_GUI_NAME("Hunter Leaderboard"),
+
+	GUI_NAME("&nBounties (%page%/%max-page%)"),
+
+	LEADERBOARD_GUI_NAME("&nHunter Leaderboard"),
 	LEADERBOARD_GUI_COMPLETED_BOUNTIES("This player has completed &f%bounties% &7bounties."),
 	LEADERBOARD_GUI_TITLE("--[ &c%title% &7]--"),
 	LEADERBOARD_GUI_LEVEL("This player is level &f%level%&7."),
-	
+
 	ERROR_PLAYER("That player doesn't exist or isn't online."),
 	TARGET_DISCONNECT("Your target disconnected."),
 	NEW_HUNTER_ALERT("%hunter% now targets you."),
@@ -59,12 +59,11 @@ public enum MessagesParams {
 	SUCCESSFULLY_SELECTED("You successfully selected &f%item%&e."),
 	UNLOCKED_TITLES("Unlocked titles:"),
 	UNLOCKED_QUOTES("Unlocked quotes:"),
-	UPPED_BOUNTY("Reward for &f%player% &eis now &f%reward%&e."),
-  	;
-  
+	UPPED_BOUNTY("&eReward for &f%player% &eis now &f%reward%&e."),;
+
 	public Object value;
-	
+
 	private MessagesParams(Object value) {
-	    this.value = value;
+		this.value = value;
 	}
 }

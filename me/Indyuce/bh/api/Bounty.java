@@ -28,6 +28,10 @@ public class Bounty {
 		return reward;
 	}
 
+	public boolean hasCreator() {
+		return creator != null;
+	}
+
 	public OfflinePlayer getCreator() {
 		return creator;
 	}
