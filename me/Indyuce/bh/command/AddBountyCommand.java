@@ -61,10 +61,10 @@ public class AddBountyCommand implements CommandExecutor {
 		}
 
 		// min/max check
-		int min = (Main.plugin.getConfig().getInt("min-reward") > 0 ? Main.plugin.getConfig().getInt("min-reward") : 0);
-		int max = Main.plugin.getConfig().getInt("max-reward");
+		double min = (Main.plugin.getConfig().getDouble("min-reward") > 0 ? Main.plugin.getConfig().getDouble("min-reward") : 0);
+		double max = Main.plugin.getConfig().getDouble("max-reward");
 		if ((reward < min) || (max > 0 && reward > max)) {
-			sender.sendMessage("§c" + Utils.msg("wrong-reward").replace("%max%", "" + max).replace("%min%", "" + min));
+			sender.sendMessage("§c" + Utils.msg("wrong-reward").replace("%max%", Utils.format(max)).replace("%min%", Utils.format(min)));
 			return true;
 		}
 
@@ -116,6 +116,7 @@ public class AddBountyCommand implements CommandExecutor {
 		if (newBounty) {
 			config.set(t.getName() + ".creator", (sender instanceof Player ? ((Player) sender).getName() : null));
 			config.set(t.getName() + ".hunters", new String[] {});
+			config.createSection(t.getName() + ".up");
 			config.set(t.getName() + ".reward", reward);
 		} else {
 			config.set(t.getName() + ".reward", reward + config.getDouble(t.getName() + ".reward"));
@@ -128,13 +129,13 @@ public class AddBountyCommand implements CommandExecutor {
 		// message
 		if (!newBounty)
 			for (Player ent : Bukkit.getOnlinePlayers())
-				ent.sendMessage(Utils.msg("upped-bounty").replace("%player%", t.getName()).replace("%reward%", "" + config.getDouble(t.getName() + ".reward")));
+				ent.sendMessage(Utils.msg("upped-bounty").replace("%player%", t.getName()).replace("%reward%", Utils.format(config.getDouble(t.getName() + ".reward"))));
 		else if (sender instanceof Player)
 			Utils.newBountyAlert((Player) sender, t);
 		else
 			Utils.autoBountyAlert(t);
 		if (tax > 0)
-			sender.sendMessage("§c" + Utils.msg("tax-explain").replace("%percent%", "" + Main.plugin.getConfig().getDouble("tax")).replace("%price%", "" + tax));
+			sender.sendMessage("§c" + Utils.msg("tax-explain").replace("%percent%", "" + Main.plugin.getConfig().getDouble("tax")).replace("%price%", "" + Utils.format(tax)));
 		return true;
 	}
 }

@@ -1,9 +1,12 @@
 package me.Indyuce.bh;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 import java.util.regex.Pattern;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -20,15 +23,61 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.metadata.FixedMetadataValue;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import me.Indyuce.bh.api.Bounty;
 import me.Indyuce.bh.api.BountyClaimEvent;
 import me.Indyuce.bh.api.BountyCreateEvent;
 import me.Indyuce.bh.reflect.Title;
-import me.Indyuce.bh.ressource.Items;
-import me.Indyuce.bh.ressource.UserdataParams;
+import me.Indyuce.bh.resource.Items;
+import me.Indyuce.bh.resource.UserdataParams;
 
+@SuppressWarnings("deprecation")
 public class MainListener implements Listener {
+	public MainListener() {
+
+		// target particles
+		if (Main.plugin.getConfig().getBoolean("target-particles.enabled"))
+			new BukkitRunnable() {
+				final String permNode = Main.plugin.getConfig().getString("target-particles.permission");
+				final boolean permBool = permNode.equals("");
+
+				public void run() {
+					FileConfiguration config = ConfigData.getCD(Main.plugin, "", "data");
+					for (String s : config.getKeys(false)) {
+						Player p = Bukkit.getPlayer(s);
+						if (p == null)
+							continue;
+
+						if (!config.getConfigurationSection(s).contains("hunters"))
+							continue;
+
+						List<Player> players = new ArrayList<Player>();
+						for (String s1 : config.getStringList(s + ".hunters")) {
+							Player t = Bukkit.getPlayer(s1);
+							if (t != null)
+								if (permBool || t.hasPermission(permNode))
+									players.add(t);
+						}
+
+						if (players.size() > 0)
+							new BukkitRunnable() {
+								int ti = 0;
+								Location loc = p.getLocation().clone().add(0, .1, 0);
+
+								public void run() {
+									ti++;
+									if (ti > 2)
+										cancel();
+
+									for (double j = 0; j < Math.PI * 2; j += Math.PI / 16)
+										Eff.REDSTONE.display(0, 0, 0, 0, 1, loc.clone().add(Math.cos(j) * .8, 0, Math.sin(j) * .8), players);
+								}
+							}.runTaskTimer(Main.plugin, 0, 7);
+					}
+				}
+			}.runTaskTimer(Main.plugin, 0, 100);
+	}
 
 	@EventHandler
 	public void a(PlayerJoinEvent e) {
@@ -43,7 +92,6 @@ public class MainListener implements Listener {
 		ConfigData.saveCD(Main.plugin, config, "/userdata", p.getUniqueId().toString());
 	}
 
-	@SuppressWarnings("deprecation")
 	@EventHandler
 	public void b(PlayerDeathEvent e) {
 		Player p = e.getEntity();
@@ -65,7 +113,7 @@ public class MainListener implements Listener {
 				return;
 
 			OfflinePlayer creator = null;
-			double reward = config.getInt(p.getName() + ".reward");
+			double reward = config.getDouble(p.getName() + ".reward");
 			if (config.getConfigurationSection(p.getName()).contains("creator"))
 				creator = Bukkit.getOfflinePlayer(config.getString(p.getName() + ".creator"));
 			if (creator != null)
@@ -122,9 +170,9 @@ public class MainListener implements Listener {
 				p.getWorld().dropItemNaturally(p.getLocation(), head);
 			}
 			return;
-		} else if (Main.plugin.getConfig().getBoolean("auto-bounty")) {
+		} else if (Main.plugin.getConfig().getBoolean("auto-bounty.enabled")) {
 			if (config.getConfigurationSection("").contains(t.getName())) {
-				int reward = Main.plugin.getConfig().getInt("auto-bounty-reward");
+				double reward = Main.plugin.getConfig().getDouble("auto-bounty.reward");
 
 				// API
 				BountyCreateEvent e1 = new BountyCreateEvent(new Bounty(null, t, reward));
@@ -153,7 +201,7 @@ public class MainListener implements Listener {
 			e.setCancelled(true);
 	}
 
-	void claimedBountyDrop(Player p) {
+	private void claimedBountyDrop(Player p) {
 		// effect
 		if (Main.plugin.getConfig().getBoolean("bounty-effect.enabled")) {
 			String material = Main.plugin.getConfig().getString("bounty-effect.material").toUpperCase().replace("-", "_").replace(" ", "_");

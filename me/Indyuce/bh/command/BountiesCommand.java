@@ -15,6 +15,7 @@ import me.Indyuce.bh.VersionUtils;
 import me.Indyuce.bh.gui.BountiesGUI;
 import me.Indyuce.bh.gui.LeaderboardGUI;
 import me.Indyuce.bh.reflect.Json;
+import net.md_5.bungee.api.ChatColor;
 
 public class BountiesCommand implements CommandExecutor {
 
@@ -39,6 +40,12 @@ public class BountiesCommand implements CommandExecutor {
 				return true;
 			}
 			LeaderboardGUI.openInv((Player) sender);
+		} else if (args[0].equalsIgnoreCase("compass")) {
+			if (!Main.plugin.checkPl(sender, true))
+				return true;
+			Player p = (Player) sender;
+			p.setCompassTarget((p.getBedSpawnLocation() == null ? p.getWorld().getSpawnLocation() : p.getBedSpawnLocation()));
+			p.sendMessage(ChatColor.YELLOW + Utils.msg("tracking-compass-reset"));
 		} else if (args[0].equalsIgnoreCase("title")) {
 			if (!Main.plugin.checkPl(sender, true))
 				return true;

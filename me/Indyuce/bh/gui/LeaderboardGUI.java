@@ -79,9 +79,9 @@ public class LeaderboardGUI implements Listener {
 				i_meta.setOwner(s);
 				i_meta.setDisplayName("§a[" + (j + 1) + "] " + s);
 				List<String> i_lore = new ArrayList<String>();
-				if (!config.getString("current-title").equals("")) {
-					i_lore.add("§7" + Utils.msg("leaderboard-gui-title").replace("%title%", "" + Utils.applySpecialChars(config.getString("current-title"))));
-				}
+				if (config.contains("current-title"))
+					if (!config.getString("current-title").equals(""))
+						i_lore.add("§7" + Utils.msg("leaderboard-gui-title").replace("%title%", "" + Utils.applySpecialChars(config.getString("current-title"))));
 				i_lore.add("§7" + Utils.msg("leaderboard-gui-completed-bounties").replace("%bounties%", "" + order.get(j)));
 				i_lore.add("§7" + Utils.msg("leaderboard-gui-level").replace("%level%", "" + config.getInt("level")));
 				i_meta.setLore(i_lore);

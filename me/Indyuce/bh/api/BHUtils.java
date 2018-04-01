@@ -19,7 +19,7 @@ public class BHUtils {
 		for (String s : data.getKeys(false)) {
 			OfflinePlayer target = Bukkit.getOfflinePlayer(s);
 			OfflinePlayer creator = Bukkit.getOfflinePlayer(data.getString(s + ".creator"));
-			int reward = data.getInt(s + ".reward");
+			double reward = data.getDouble(s + ".reward");
 			List<OfflinePlayer> trackers = new ArrayList<OfflinePlayer>();
 			for (String s1 : data.getStringList(s + ".hunters")) {
 				OfflinePlayer t = Bukkit.getOfflinePlayer(s1);
@@ -38,7 +38,7 @@ public class BHUtils {
 			return null;
 
 		String creator = data.getString(target.getName() + ".creator");
-		int reward = data.getInt(target.getName() + ".reward");
+		double reward = data.getDouble(target.getName() + ".reward");
 		List<OfflinePlayer> trackers = new ArrayList<OfflinePlayer>();
 		for (String s1 : data.getStringList(target.getName() + ".hunters")) {
 			OfflinePlayer t = Bukkit.getOfflinePlayer(s1);

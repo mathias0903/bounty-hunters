@@ -16,11 +16,11 @@ import me.Indyuce.bh.command.AddBountyCommand;
 import me.Indyuce.bh.command.BountiesCommand;
 import me.Indyuce.bh.gui.BountiesGUI;
 import me.Indyuce.bh.gui.LeaderboardGUI;
-import me.Indyuce.bh.ressource.Items;
-import me.Indyuce.bh.ressource.MessagesParams;
-import me.Indyuce.bh.ressource.QuoteReward;
-import me.Indyuce.bh.ressource.TitleReward;
-import me.Indyuce.bh.ressource.UserdataParams;
+import me.Indyuce.bh.resource.Items;
+import me.Indyuce.bh.resource.MessagesParams;
+import me.Indyuce.bh.resource.QuoteReward;
+import me.Indyuce.bh.resource.TitleReward;
+import me.Indyuce.bh.resource.UserdataParams;
 import net.milkbowl.vault.economy.Economy;
 
 public class Main extends JavaPlugin {
@@ -32,18 +32,20 @@ public class Main extends JavaPlugin {
 	public String prefix = "§8[§eBH§8] §7";
 
 	public void onDisable() {
-		getConfig().options().copyDefaults(true);
-		saveConfig();
+		for (Player t : Bukkit.getOnlinePlayers())
+			t.closeInventory();
 	}
 
 	public void onEnable() {
 		plugin = this;
+
+		// listeners
 		Bukkit.getServer().getPluginManager().registerEvents(new MainListener(), this);
 		Bukkit.getServer().getPluginManager().registerEvents(new Utils(), this);
-
 		Bukkit.getServer().getPluginManager().registerEvents(new BountiesGUI(), this);
 		Bukkit.getServer().getPluginManager().registerEvents(new LeaderboardGUI(), this);
 
+		// version compatibility + vault
 		try {
 			VersionUtils.version = Bukkit.getServer().getClass().getPackage().getName().replace(".", ",").split(",")[3];
 			Bukkit.getConsoleSender().sendMessage("[BountyHunters] " + ChatColor.DARK_GRAY + "Detected Server Version: " + VersionUtils.version);
@@ -60,14 +62,15 @@ public class Main extends JavaPlugin {
 		}
 
 		RegisteredServiceProvider<Economy> economyProvider = getServer().getServicesManager().getRegistration(net.milkbowl.vault.economy.Economy.class);
-		if (economyProvider != null) {
+		if (economyProvider != null)
 			economy = economyProvider.getProvider();
-		} else {
+		else {
 			Bukkit.getConsoleSender().sendMessage("[BountyHunters] " + ChatColor.RED + "Couldn't load Vault. Disabling...");
 			Bukkit.getPluginManager().disablePlugin(this);
 			return;
 		}
 
+		// config files
 		ConfigData.setupCD(this, "", "levels");
 		ConfigData.setupCD(this, "", "data");
 		ConfigData.setupCD(this, "/language", "messages");
@@ -76,8 +79,7 @@ public class Main extends JavaPlugin {
 		FileConfiguration items = ConfigData.getCD(this, "/language", "items");
 		FileConfiguration levels = ConfigData.getCD(this, "", "levels");
 
-		getConfig().options().copyDefaults(true);
-		saveConfig();
+		saveDefaultConfig();
 
 		if (levels.getConfigurationSection("").getKeys(false).isEmpty()) {
 			for (TitleReward title : TitleReward.values())
@@ -115,6 +117,7 @@ public class Main extends JavaPlugin {
 		ConfigData.saveCD(this, messages, "/language", "messages");
 		ConfigData.saveCD(this, levels, "", "levels");
 
+		// commands
 		getCommand("addbounty").setExecutor(new AddBountyCommand());
 		getCommand("bounties").setExecutor(new BountiesCommand());
 	}

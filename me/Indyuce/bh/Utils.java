@@ -15,12 +15,12 @@ import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import me.Indyuce.bh.reflect.Json;
-import me.Indyuce.bh.ressource.Items;
-import me.Indyuce.bh.ressource.SpecialChar;
+import me.Indyuce.bh.resource.Items;
+import me.Indyuce.bh.resource.SpecialChar;
 
 public class Utils implements Listener {
 	public Utils() {
-		if (!Main.plugin.getConfig().getBoolean("disable-compass")) {
+		if (Main.plugin.getConfig().getBoolean("compass.enabled")) {
 			new BukkitRunnable() {
 				public void run() {
 					for (Player p : Bukkit.getOnlinePlayers())
@@ -45,21 +45,31 @@ public class Utils implements Listener {
 		return s.replace("%star%", SpecialChar.star).replace("%square%", SpecialChar.square);
 	}
 
+	public static String format(double n) {
+		if (!Main.plugin.getConfig().getBoolean("formatted-numbers"))
+			return "" + n;
+		String[] prefixes = new String[] { "M", "B", "Tril", "Quad", "Quin", "Sext", "Sept", "Octi", "Noni", "Deci" };
+		for (int j = 9; j >= 0; j--) {
+			double b = Math.pow(10, 6 + 3 * j);
+			if (n > b)
+				return tronc(n / b, 3) + prefixes[j];
+		}
+		return "" + n;
+	}
+
 	public static double tronc(double x, int n) {
 		double pow = Math.pow(10.0, n);
 		return Math.floor(x * pow) / pow;
 	}
 
 	void loop(Player p) {
-		if (Main.plugin.getConfig().getBoolean("disable-compass"))
-			return;
 		ItemStack i = VersionUtils.getMainItem(p);
 		if (!isCompass(i))
 			return;
 		Player t = null;
 
 		FileConfiguration config = ConfigData.getCD(Main.plugin, "", "data");
-		for (String s : config.getConfigurationSection("").getKeys(false))
+		for (String s : config.getKeys(false))
 			if (config.getConfigurationSection(s).contains("hunters")) {
 				List<String> hunters = config.getStringList(s + ".hunters");
 				if (hunters.contains(p.getName())) {
@@ -68,13 +78,8 @@ public class Utils implements Listener {
 				}
 			}
 
-		if (t == null) {
-			if (!i.getItemMeta().getDisplayName().equals(Items.BOUNTY_COMPASS.a().getItemMeta().getDisplayName())) {
-				i.setItemMeta(Items.BOUNTY_COMPASS.a().getItemMeta());
-				p.setCompassTarget(p.getBedSpawnLocation());
-			}
+		if (t == null)
 			return;
-		}
 
 		String format = msg("in-another-world");
 		if (p.getWorld().getName().equals(t.getWorld().getName())) {
@@ -120,6 +125,7 @@ public class Utils implements Listener {
 		return msg;
 	}
 
+	@SuppressWarnings("deprecation")
 	public static ItemStack getProfile(Player p) {
 		FileConfiguration config = ConfigData.getCD(Main.plugin, "/userdata", p.getUniqueId().toString());
 		ItemStack profile = Items.PROFILE.a().clone();
@@ -151,7 +157,7 @@ public class Utils implements Listener {
 				double money = levels.getDouble("reward.money.base") + (j * levels.getDouble("reward.money.per-lvl"));
 				List<String> unlocked = config.getStringList("unlocked");
 				List<String> rewards = new ArrayList<String>();
-				
+
 				// title rewards
 				for (String title : levels.getConfigurationSection("reward.title").getKeys(false)) {
 					int reward_level = 0;
@@ -164,7 +170,7 @@ public class Utils implements Listener {
 					if (j >= reward_level && !unlocked.contains(reward))
 						rewards.add(reward);
 				}
-				
+
 				// quote rewards
 				for (String quote : levels.getConfigurationSection("reward.quote").getKeys(false)) {
 					int reward_level = 0;
@@ -225,7 +231,7 @@ public class Utils implements Listener {
 	public static void bountyClaimedAlert(Player p, Player t) {
 		FileConfiguration config = ConfigData.getCD(Main.plugin, "", "data");
 		p.sendMessage(Main.plugin.chatWindow);
-		p.sendMessage("§e" + msg("bounty-claimed-by-you").replace("%target%", t.getName()).replace("%reward%", "" + config.getInt(t.getName() + ".reward")));
+		p.sendMessage("§e" + msg("bounty-claimed-by-you").replace("%target%", t.getName()).replace("%reward%", format(config.getDouble(t.getName() + ".reward"))));
 		for (String h_format : config.getStringList(t.getName() + ".hunters")) {
 			Player h = Bukkit.getPlayer(h_format);
 			if (h == null)
@@ -236,13 +242,13 @@ public class Utils implements Listener {
 		for (Player t1 : Bukkit.getOnlinePlayers()) {
 			VersionUtils.sound(t1, "ENTITY_PLAYER_LEVELUP", 1, 2);
 			if (t1 != p)
-				t1.sendMessage("§e" + msg("bounty-claimed").replace("%reward%", "" + config.getInt(t.getName() + ".reward")).replace("%killer%", (p_config.getString("current-title").equals("") ? "" : "§5[" + applySpecialChars(p_config.getString("current-title")) + "] ") + ChatColor.getLastColors(msg("bounty-claimed").split(Pattern.quote("%killer%"))[0]) + p.getName()).replace("%target%", t.getName()));
+				t1.sendMessage("§e" + msg("bounty-claimed").replace("%reward%", format(config.getDouble(t.getName() + ".reward"))).replace("%killer%", (p_config.getString("current-title").equals("") ? "" : "§5[" + applySpecialChars(p_config.getString("current-title")) + "] ") + ChatColor.getLastColors(msg("bounty-claimed").split(Pattern.quote("%killer%"))[0]) + p.getName()).replace("%target%", t.getName()));
 		}
 	}
 
 	public static void newBountyAlert(Player p, Player t) {
 		FileConfiguration config = ConfigData.getCD(Main.plugin, "", "data");
-		int reward = config.getInt(t.getName() + ".reward");
+		double reward = config.getDouble(t.getName() + ".reward");
 		VersionUtils.sound(t, "ENTITY_ENDERMEN_HURT", 1, 0);
 		if (p != t)
 			t.sendMessage("§c" + msg("new-bounty-on-you").replace("%creator%", p.getName()));
@@ -253,30 +259,30 @@ public class Utils implements Listener {
 			if (t1 != t)
 				VersionUtils.sound(t1, "ENTITY_PLAYER_LEVELUP", 1, 2);
 			if (t1 != t && t1 != p)
-				t1.sendMessage("§e" + msg("new-bounty-on-player").replace("%creator%", p.getName()).replace("%target%", t.getName()).replace("%reward%", "" + reward));
+				t1.sendMessage("§e" + msg("new-bounty-on-player").replace("%creator%", p.getName()).replace("%target%", t.getName()).replace("%reward%", format(reward)));
 		}
 	}
 
 	public static void newHunterAlert(Player t, Player h) {
-		t.sendMessage("§c" + msg("new-hunter-alert").replace("%hunter%", h.getName()));
+		t.sendMessage(ChatColor.RED + msg("new-hunter-alert").replace("%hunter%", h.getName()));
 		VersionUtils.sound(t.getLocation(), "ENTITY_ENDERMEN_HURT", 1, 1);
 	}
 
 	public static void uppedBountyAlert(String name, double newReward) {
 		for (Player t : Bukkit.getOnlinePlayers())
-			t.sendMessage("§e" + msg("upped-bounty").replace("%player%", name).replace("%reward%", "" + tronc(newReward, 1)));
+			t.sendMessage(ChatColor.YELLOW + msg("upped-bounty").replace("%player%", name).replace("%reward%", format(newReward)));
 	}
 
 	public static void autoBountyAlert(Player t) {
 		FileConfiguration config = ConfigData.getCD(Main.plugin, "", "data");
-		int reward = config.getInt(t.getName() + ".reward");
+		double reward = config.getDouble(t.getName() + ".reward");
 		t.sendMessage("§c" + msg("illegal-kill"));
 		VersionUtils.sound(t, "ENTITY_ENDERMEN_HURT", 1, 0);
 		for (Player t1 : Bukkit.getOnlinePlayers()) {
 			if (t1 != t)
 				VersionUtils.sound(t1, "ENTITY_PLAYER_LEVELUP", 1, 2);
 			if (t1 != t)
-				t1.sendMessage("§e" + msg("auto-bounty").replace("%target%", t.getName()).replace("%reward%", "" + reward));
+				t1.sendMessage("§e" + msg("auto-bounty").replace("%target%", t.getName()).replace("%reward%", format(reward)));
 		}
 	}
 

@@ -26,7 +26,7 @@ import me.Indyuce.bh.ConfigData;
 import me.Indyuce.bh.Main;
 import me.Indyuce.bh.Utils;
 import me.Indyuce.bh.VersionUtils;
-import me.Indyuce.bh.ressource.Items;
+import me.Indyuce.bh.resource.Items;
 
 public class BountiesGUI implements Listener {
 	static HashMap<UUID, Integer> currentPage = new HashMap<UUID, Integer>();
@@ -39,6 +39,7 @@ public class BountiesGUI implements Listener {
 		return -1;
 	}
 
+	@SuppressWarnings("deprecation")
 	public static void openInv(Player p, int page) {
 		FileConfiguration config = ConfigData.getCD(Main.plugin, "", "data");
 		ConfigurationSection section = config.getConfigurationSection("");
@@ -64,7 +65,7 @@ public class BountiesGUI implements Listener {
 						i_lore.add("§7" + Utils.msg("set-by-yourself"));
 					else
 						i_lore.add("§7" + Utils.msg("set-by").replace("%creator%", config.getString(s + ".creator")));
-					i_lore.add("§7" + Utils.msg("reward-is").replace("%reward%", "" + config.getInt(s + ".reward")));
+					i_lore.add("§7" + Utils.msg("reward-is").replace("%reward%", Utils.format(config.getDouble(s + ".reward"))));
 					i_lore.add("§7" + Utils.msg("current-hunters").replace("%hunters%", "" + config.getStringList(s + ".hunters").size()));
 					i_lore.add("");
 
@@ -79,7 +80,7 @@ public class BountiesGUI implements Listener {
 						i_lore.add("§e" + Utils.msg("kill-him-claim-bounty"));
 
 					// target compass
-					if (!p.getName().equals(s) && !Main.plugin.getConfig().getBoolean("disable-compass")) {
+					if (!p.getName().equals(s) && Main.plugin.getConfig().getBoolean("compass.enabled")) {
 						if (config.getStringList(s + ".hunters").contains(p.getName()))
 							i_lore.add("§c" + Utils.msg("click-untarget"));
 						else
@@ -96,7 +97,7 @@ public class BountiesGUI implements Listener {
 		ItemMeta compass_meta = compass.getItemMeta();
 		List<String> compass_lore = compass_meta.getLore();
 		compass_lore.add("");
-		compass_lore.add("§e" + Utils.msg("click-buy-compass").replace("%price%", "" + Main.plugin.getConfig().getInt("compass-price")));
+		compass_lore.add("§e" + Utils.msg("click-buy-compass").replace("%price%", Utils.format(Main.plugin.getConfig().getDouble("compass.price"))));
 		compass_meta.setLore(compass_lore);
 		compass.setItemMeta(compass_meta);
 
@@ -108,7 +109,7 @@ public class BountiesGUI implements Listener {
 		inv.setItem(47, Utils.getProfile(p));
 		inv.setItem(49, Items.SET_BOUNTY.a());
 
-		if (!Main.plugin.getConfig().getBoolean("disable-compass"))
+		if (Main.plugin.getConfig().getBoolean("compass.enabled"))
 			inv.setItem(51, compass);
 
 		p.openInventory(inv);
@@ -157,7 +158,7 @@ public class BountiesGUI implements Listener {
 				p.sendMessage("§c" + Utils.msg("empty-inv-first"));
 				return;
 			}
-			int price = Main.plugin.getConfig().getInt("compass-price");
+			double price = Main.plugin.getConfig().getDouble("compass.price");
 			if (Main.plugin.economy.getBalance(p) < price) {
 				p.sendMessage("§c" + Utils.msg("not-enough-money"));
 				return;
@@ -169,7 +170,7 @@ public class BountiesGUI implements Listener {
 		}
 
 		// target compass
-		if (e.getAction() == InventoryAction.PICKUP_ALL && !Main.plugin.getConfig().getBoolean("disable-compass")) {
+		if (e.getAction() == InventoryAction.PICKUP_ALL && Main.plugin.getConfig().getBoolean("compass.enabled")) {
 			for (String s : config.getConfigurationSection("").getKeys(false)) {
 				if (s.equals(p.getName()))
 					continue;
@@ -215,11 +216,12 @@ public class BountiesGUI implements Listener {
 					double reward = config.getDouble(s + ".reward");
 
 					// gives the players the money back if upped the bounty
-					for (String up : config.getConfigurationSection(s + ".up").getKeys(false)) {
-						double given = config.getDouble(s + ".up." + up);
-						Main.plugin.economy.depositPlayer(Bukkit.getOfflinePlayer(up), given);
-						reward -= given;
-					}
+					if (config.getConfigurationSection(s).contains("up"))
+						for (String up : config.getConfigurationSection(s + ".up").getKeys(false)) {
+							double given = config.getDouble(s + ".up." + up);
+							Main.plugin.economy.depositPlayer(Bukkit.getOfflinePlayer(up), given);
+							reward -= given;
+						}
 					Main.plugin.economy.depositPlayer(p, reward);
 					Utils.bountyExpired(s);
 					config.set(s, null);
