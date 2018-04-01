@@ -1,24 +1,71 @@
+# Enables/disables the item effect when a bounty is claimed.
 bounty-effect:
   enabled: true
   material: CHEST
+  
+# All items that are dropped when claiming a bounty.
 physical-rewards:
   enabled: false
   list:
     GOLD_NUGGET: 10
     INK_SACK: 4 1
-auto-bounty: false
-auto-bounty-reward: 100
+
+# Auto-bounty will automaticaly create bounties on people who
+# kill illegaly kill players (i.e killing someone with no bounty)
+auto-bounty:
+  enabled: false
+  reward: 100
+# Round distance displayed on the tracking compass
+round-distance: false
+
+# Drops the player head when claming a bounty.
 drop-head: false
+
+# Plays a sound & sends a message when someone is targeting you.
+# Warning: can be abused (spam)
 new-hunter-alert: true
-disable-compass: false
-compass-price: 1000
+
+# The tracking compass allows people to know where the people with a bounty on are.
+# Required a /reload to take effect.
+compass:
+  enabled: true
+  price: 1000
+
+# Min and max bounty rewards
 min-reward: 0
 max-reward: 0
+
+# Tax taken when creating a bounty (to fight abuse)
+# In % of the money reward
 tax: 15
-round-distance: false
+
+# Enables the display of death quotes when claiming a bounty
 display-death-quote-on-title: false
+
+# Hides bounties when you don't have the permission to see them (in the GUI)
 hide-bounty-when-no-perm: false
-gui-up-bounty: false
-gui-up-bounty-percent: 20
+
+# Worlds in which the bounty system is COMPLETELY disabled
 world-blacklist:
   - INSERT_WORLD_HERE
+  
+# Enables leveling rewards
+enable-quotes-levels-titles: true
+
+# You can claim the bounties you create
+# Warning: can be abused
+own-bounty-claiming: true
+
+# Allows players to up bounties by a certain amount (GUI)
+gui-up-bounty: false
+gui-up-bounty-percent: 20
+# When using /bounty
+add-reward-to-bounty-when-existing-bounty: true
+
+# Displays particles around targeted players (requires /reload to take effect)
+target-particles:
+  enabled: true
+  permission: ""
+  
+# Formatted numbers (1B instead of 1,000,000,000)
+formatted-numbers: true

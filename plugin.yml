@@ -1,5 +1,5 @@
 name: BountyHunters
-version: 1.4
+version: 1.4.5.1
 main: me.Indyuce.bh.Main
 author: Indyuce
 softdepend: [Vault]
