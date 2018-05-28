@@ -19,11 +19,17 @@ auto-bounty:
 round-distance: false
 
 # Drops the player head when claming a bounty.
-drop-head: false
+drop-head:
+  enabled: false
+  chance: 100
 
 # Plays a sound & sends a message when someone is targeting you.
 # Warning: can be abused (spam)
 new-hunter-alert: true
+
+# Displays player skulls
+# Can sometimes not work because of minecraft servers (too many requests)
+display-player-skulls: true
 
 # The tracking compass allows people to know where the people with a bounty on are.
 # Required a /reload to take effect.
