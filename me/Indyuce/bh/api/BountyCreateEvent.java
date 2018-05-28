@@ -4,13 +4,17 @@ import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
+import me.Indyuce.bh.resource.BountyCause;
+
 public class BountyCreateEvent extends Event implements Cancellable {
 	private static final HandlerList handlers = new HandlerList();
 	private Bounty bounty;
 	private boolean cancelled;
+	private BountyCause cause;
 
-	public BountyCreateEvent(Bounty bounty) {
+	public BountyCreateEvent(Bounty bounty, BountyCause cause) {
 		this.bounty = bounty;
+		this.cause = cause;
 	}
 
 	public boolean isCancelled() {
@@ -23,6 +27,10 @@ public class BountyCreateEvent extends Event implements Cancellable {
 
 	public Bounty getBounty() {
 		return bounty;
+	}
+
+	public BountyCause getCause() {
+		return cause;
 	}
 
 	public HandlerList getHandlers() {

@@ -9,6 +9,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 
 import me.Indyuce.bh.ConfigData;
 import me.Indyuce.bh.Main;
+import me.Indyuce.bh.resource.BountyCause;
 
 @SuppressWarnings("deprecation")
 public class BHUtils {
@@ -53,7 +54,7 @@ public class BHUtils {
 		config.set(bounty.getTarget().getName() + ".reward", bounty.getReward());
 		config.set(bounty.getTarget().getName() + ".creator", (bounty.hasCreator() ? bounty.getCreator().getName() : null));
 		ConfigData.saveCD(Main.plugin, config, "", "data");
-		Bukkit.getPluginManager().callEvent(new BountyCreateEvent(bounty));
+		Bukkit.getPluginManager().callEvent(new BountyCreateEvent(bounty, BountyCause.NONE));
 	}
 
 	public static void unregisterBounty(OfflinePlayer p) {

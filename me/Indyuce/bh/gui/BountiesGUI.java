@@ -52,43 +52,44 @@ public class BountiesGUI implements Listener {
 				if (j < section.getKeys(false).size()) {
 					String s = new ArrayList<String>(section.getKeys(false)).get(j);
 					ItemStack i = new ItemStack(Material.SKULL_ITEM, 1, (short) 3);
-					SkullMeta i_meta = (SkullMeta) i.getItemMeta();
-					i_meta.addItemFlags(ItemFlag.values());
-					i_meta.setOwner(s);
-					i_meta.setDisplayName("§a" + s);
-					List<String> i_lore = new ArrayList<String>();
+					SkullMeta meta = (SkullMeta) i.getItemMeta();
+					meta.addItemFlags(ItemFlag.values());
+					if (Main.plugin.getConfig().getBoolean("display-player-skulls"))
+						meta.setOwner(s);
+					meta.setDisplayName(ChatColor.GREEN + s);
+					List<String> lore = new ArrayList<String>();
 
 					// creator, reward, hunters size
 					if (!config.getConfigurationSection(s).contains("creator"))
-						i_lore.add("§c" + Utils.msg("thug-player"));
+						lore.add(ChatColor.RED + Utils.msg("thug-player"));
 					else if (config.getString(s + ".creator").equals(p.getName()))
-						i_lore.add("§7" + Utils.msg("set-by-yourself"));
+						lore.add(ChatColor.GRAY + Utils.msg("set-by-yourself"));
 					else
-						i_lore.add("§7" + Utils.msg("set-by").replace("%creator%", config.getString(s + ".creator")));
-					i_lore.add("§7" + Utils.msg("reward-is").replace("%reward%", Utils.format(config.getDouble(s + ".reward"))));
-					i_lore.add("§7" + Utils.msg("current-hunters").replace("%hunters%", "" + config.getStringList(s + ".hunters").size()));
-					i_lore.add("");
+						lore.add(ChatColor.GRAY + Utils.msg("set-by").replace("%creator%", config.getString(s + ".creator")));
+					lore.add(ChatColor.GRAY + Utils.msg("reward-is").replace("%reward%", Utils.format(config.getDouble(s + ".reward"))));
+					lore.add(ChatColor.GRAY + Utils.msg("current-hunters").replace("%hunters%", "" + config.getStringList(s + ".hunters").size()));
+					lore.add("");
 
 					// bounty status
 					if (p.getName().equals(s))
-						i_lore.add("§c" + Utils.msg("dont-let-them-kill-u"));
+						lore.add(ChatColor.RED + Utils.msg("dont-let-them-kill-u"));
 					else if (!config.getConfigurationSection(s).contains("creator"))
-						i_lore.add("§e" + Utils.msg("kill-him-claim-bounty"));
+						lore.add(ChatColor.YELLOW + Utils.msg("kill-him-claim-bounty"));
 					else if (config.getString(s + ".creator").equals(p.getName()))
-						i_lore.add("§e" + Utils.msg("right-click-remove-bounty"));
+						lore.add(ChatColor.YELLOW + Utils.msg("right-click-remove-bounty"));
 					else
-						i_lore.add("§e" + Utils.msg("kill-him-claim-bounty"));
+						lore.add(ChatColor.YELLOW + Utils.msg("kill-him-claim-bounty"));
 
 					// target compass
 					if (!p.getName().equals(s) && Main.plugin.getConfig().getBoolean("compass.enabled")) {
 						if (config.getStringList(s + ".hunters").contains(p.getName()))
-							i_lore.add("§c" + Utils.msg("click-untarget"));
+							lore.add(ChatColor.RED + Utils.msg("click-untarget"));
 						else
-							i_lore.add("§e" + Utils.msg("click-target"));
+							lore.add(ChatColor.YELLOW + Utils.msg("click-target"));
 
 					}
-					i_meta.setLore(i_lore);
-					i.setItemMeta(i_meta);
+					meta.setLore(lore);
+					i.setItemMeta(meta);
 
 					inv.setItem(getAvailableSlot(inv), i);
 				}
@@ -97,7 +98,7 @@ public class BountiesGUI implements Listener {
 		ItemMeta compass_meta = compass.getItemMeta();
 		List<String> compass_lore = compass_meta.getLore();
 		compass_lore.add("");
-		compass_lore.add("§e" + Utils.msg("click-buy-compass").replace("%price%", Utils.format(Main.plugin.getConfig().getDouble("compass.price"))));
+		compass_lore.add(ChatColor.YELLOW + Utils.msg("click-buy-compass").replace("%price%", Utils.format(Main.plugin.getConfig().getDouble("compass.price"))));
 		compass_meta.setLore(compass_lore);
 		compass.setItemMeta(compass_meta);
 
@@ -155,12 +156,12 @@ public class BountiesGUI implements Listener {
 		}
 		if (i.getItemMeta().getDisplayName().equals(Items.BOUNTY_COMPASS.a().getItemMeta().getDisplayName())) {
 			if (p.getInventory().firstEmpty() <= -1) {
-				p.sendMessage("§c" + Utils.msg("empty-inv-first"));
+				p.sendMessage(ChatColor.RED + Utils.msg("empty-inv-first"));
 				return;
 			}
 			double price = Main.plugin.getConfig().getDouble("compass.price");
 			if (Main.plugin.economy.getBalance(p) < price) {
-				p.sendMessage("§c" + Utils.msg("not-enough-money"));
+				p.sendMessage(ChatColor.RED + Utils.msg("not-enough-money"));
 				return;
 			}
 			Main.plugin.economy.withdrawPlayer(p, price);
@@ -171,18 +172,18 @@ public class BountiesGUI implements Listener {
 
 		// target compass
 		if (e.getAction() == InventoryAction.PICKUP_ALL && Main.plugin.getConfig().getBoolean("compass.enabled")) {
-			for (String s : config.getConfigurationSection("").getKeys(false)) {
+			for (String s : config.getKeys(false)) {
 				if (s.equals(p.getName()))
 					continue;
 				if (s.equals(ChatColor.stripColor(i.getItemMeta().getDisplayName()))) {
 					String format = ChatColor.stripColor(i.getItemMeta().getDisplayName());
 					Player t = Bukkit.getPlayer(format);
 					if (t == null || !t.isOnline()) {
-						p.sendMessage("§e" + Utils.msg("player-must-be-connected"));
+						p.sendMessage(ChatColor.YELLOW + Utils.msg("player-must-be-connected"));
 						return;
 					}
 					if (t.hasPermission("bountyhunters.imun") && !p.hasPermission("bountyhunters.bypass-imun")) {
-						p.sendMessage("§e" + Utils.msg("track-imun"));
+						p.sendMessage(ChatColor.YELLOW + Utils.msg("track-imun"));
 						return;
 					}
 
@@ -194,10 +195,10 @@ public class BountiesGUI implements Listener {
 						hunters.add(p.getName());
 						if (Main.plugin.getConfig().getBoolean("new-hunter-alert"))
 							Utils.newHunterAlert(t, p);
-						p.sendMessage("§e" + Utils.msg("target-set"));
+						p.sendMessage(ChatColor.YELLOW + Utils.msg("target-set"));
 					} else {
 						hunters.remove(p.getName());
-						p.sendMessage("§e" + Utils.msg("target-removed"));
+						p.sendMessage(ChatColor.YELLOW + Utils.msg("target-removed"));
 						p.setCompassTarget(p.getWorld().getSpawnLocation());
 					}
 
@@ -211,24 +212,25 @@ public class BountiesGUI implements Listener {
 
 		// remove bounty
 		if (e.getAction() == InventoryAction.PICKUP_HALF)
-			for (String s : config.getConfigurationSection("").getKeys(false))
-				if (s.equals(ChatColor.stripColor(i.getItemMeta().getDisplayName())) && config.getString(s + ".creator").equals(p.getName())) {
-					double reward = config.getDouble(s + ".reward");
+			for (String s : config.getKeys(false))
+				if (config.getConfigurationSection(s).contains("creator"))
+					if (s.equals(ChatColor.stripColor(i.getItemMeta().getDisplayName())) && config.getString(s + ".creator").equals(p.getName())) {
+						double reward = config.getDouble(s + ".reward");
 
-					// gives the players the money back if upped the bounty
-					if (config.getConfigurationSection(s).contains("up"))
-						for (String up : config.getConfigurationSection(s + ".up").getKeys(false)) {
-							double given = config.getDouble(s + ".up." + up);
-							Main.plugin.economy.depositPlayer(Bukkit.getOfflinePlayer(up), given);
-							reward -= given;
-						}
-					Main.plugin.economy.depositPlayer(p, reward);
-					Utils.bountyExpired(s);
-					config.set(s, null);
-					ConfigData.saveCD(Main.plugin, config, "", "data");
-					openInv(p, page);
-					break;
-				}
+						// gives the players the money back if upped the bounty
+						if (config.getConfigurationSection(s).contains("up"))
+							for (String up : config.getConfigurationSection(s + ".up").getKeys(false)) {
+								double given = config.getDouble(s + ".up." + up);
+								Main.plugin.economy.depositPlayer(Bukkit.getOfflinePlayer(up), given);
+								reward -= given;
+							}
+						Main.plugin.economy.depositPlayer(p, reward);
+						Utils.bountyExpired(s);
+						config.set(s, null);
+						ConfigData.saveCD(Main.plugin, config, "", "data");
+						openInv(p, page);
+						break;
+					}
 	}
 
 	public static int getMaxPage() {

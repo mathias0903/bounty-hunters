@@ -1,6 +1,7 @@
 package me.Indyuce.bh.command;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -12,6 +13,7 @@ import me.Indyuce.bh.Main;
 import me.Indyuce.bh.Utils;
 import me.Indyuce.bh.api.Bounty;
 import me.Indyuce.bh.api.BountyCreateEvent;
+import me.Indyuce.bh.resource.BountyCause;
 
 public class AddBountyCommand implements CommandExecutor {
 	@Override
@@ -92,7 +94,8 @@ public class AddBountyCommand implements CommandExecutor {
 			}
 
 		// API
-		BountyCreateEvent e = new BountyCreateEvent(new Bounty((sender instanceof Player ? (Player) sender : null), t, reward));
+		Bounty b = new Bounty((sender instanceof Player ? (Player) sender : null), t, reward);
+		BountyCreateEvent e = new BountyCreateEvent(b, (sender instanceof Player ? BountyCause.PLAYER : BountyCause.CONSOLE));
 		Bukkit.getPluginManager().callEvent(e);
 		if (e.isCancelled())
 			return true;
@@ -129,11 +132,10 @@ public class AddBountyCommand implements CommandExecutor {
 		// message
 		if (!newBounty)
 			for (Player ent : Bukkit.getOnlinePlayers())
-				ent.sendMessage(Utils.msg("upped-bounty").replace("%player%", t.getName()).replace("%reward%", Utils.format(config.getDouble(t.getName() + ".reward"))));
-		else if (sender instanceof Player)
-			Utils.newBountyAlert((Player) sender, t);
+				ent.sendMessage(ChatColor.YELLOW + Utils.msg("upped-bounty").replace("%player%", t.getName()).replace("%reward%", Utils.format(config.getDouble(t.getName() + ".reward"))));
 		else
-			Utils.autoBountyAlert(t);
+			Utils.newBountyAlert(e);
+		
 		if (tax > 0)
 			sender.sendMessage("§c" + Utils.msg("tax-explain").replace("%percent%", "" + Main.plugin.getConfig().getDouble("tax")).replace("%price%", "" + Utils.format(tax)));
 		return true;

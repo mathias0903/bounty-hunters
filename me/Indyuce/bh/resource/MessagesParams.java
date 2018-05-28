@@ -16,12 +16,24 @@ public enum MessagesParams {
 	NO_TITLE("&cNo title"),
 
 	GUI_NAME("&nBounties (%page%/%max-page%)"),
+	CHAT_BAR("&e&m-----------------------------------------------------"),
 
+	// leaderboard
 	LEADERBOARD_GUI_NAME("&nHunter Leaderboard"),
 	LEADERBOARD_GUI_COMPLETED_BOUNTIES("This player has completed &f%bounties% &7bounties."),
 	LEADERBOARD_GUI_TITLE("--[ &c%title% &7]--"),
 	LEADERBOARD_GUI_LEVEL("This player is level &f%level%&7."),
 
+	// bounty creation
+	BOUNTY_CREATED("You succesfully set a bounty on &f%target%&e."),
+	BOUNTY_EXPLAIN("The first to kill this player will receive &f%reward%&e$."),
+	NEW_BOUNTY_ON_YOU("&f%creator% &ejust set a bounty on you!"),
+	NEW_BOUNTY_ON_YOU_ILLEGAL("You killed a man illegally! A bounty was set on you!"),
+	NEW_BOUNTY_ON_YOU_UNDEFINED("&eSomeone just set a bounty on you!"),
+	NEW_BOUNTY_ON_PLAYER("&f%creator% &eset a bounty on &f%target%&e! Kill him to get &f%reward%&e$!"),
+	NEW_BOUNTY_ON_PLAYER_ILLEGAL("&f%target%&e killed a player illegally: a bounty was set on him! Kill him to get &f%reward%&e$!"),
+	NEW_BOUNTY_ON_PLAYER_UNDEFINED("&eSomeone set a bounty on &f%target%&e! Kill him to get &f%reward%&e$!"),
+	
 	ERROR_PLAYER("That player doesn't exist or isn't online."),
 	TARGET_DISCONNECT("Your target disconnected."),
 	NEW_HUNTER_ALERT("%hunter% now targets you."),
@@ -31,20 +43,14 @@ public enum MessagesParams {
 	ALREADY_BOUNTY_ON_PLAYER("There is already a bounty on that player."),
 	COMMAND_USAGE("Usage: %command%"),
 	NOT_VALID_NUMBER("&f%arg% &eis not a valid number!"),
-	BOUNTY_CREATED("You succesfully set a bounty on &f%target%&e."),
-	BOUNTY_EXPLAIN("The first to kill this player will receive &f%reward%&e$."),
 	BOUNTY_IMUN("You can't set a bounty on this player."),
 	TRACK_IMUN("You can't track this player."),
 	CANT_SET_BOUNTY_ON_YOURSELF("You can't set a bounty on yourself!"),
-	NEW_BOUNTY_ON_YOU("&f%creator% &ejust set a bounty on you!"),
-	NEW_BOUNTY_ON_PLAYER("&f%creator% &eset a bounty on &f%target%&e! Kill him to get &f%reward%&e$!"),
 	BOUNTY_EXPIRED("The bounty on &f%target% &ehas expired."),
 	WRONG_REWARD("Reward must be between §f%min% §cand §f%max%§c!"),
 	NOT_ENOUGH_MONEY("You don't have enough money."),
 	BOUNTY_CLAIMED("&f%killer% &eclaimed &f%target%&e's bounty: &f%reward%&e$!"),
 	BOUNTY_CLAIMED_BY_YOU("You succesfully claimed &f%target%&e's bounty: &f%reward%&e$!"),
-	AUTO_BOUNTY("&f%target%&e killed a player illegaly: a bounty was set on him! Kill him to get &f%reward%&e$!"),
-	ILLEGAL_KILL("You killed a man illegaly! A bounty was set on you!"),
 	BOUNTY_SET_RESTRICTION("You must wait &f%time% &cseconds between each bounty."),
 	TARGET_SET("Target set."),
 	TARGET_REMOVED("Target removed."),
@@ -60,7 +66,9 @@ public enum MessagesParams {
 	UNLOCKED_TITLES("Unlocked titles:"),
 	UNLOCKED_QUOTES("Unlocked quotes:"),
 	UPPED_BOUNTY("Reward for &f%player% &eis now &f%reward%&e."),
-	TRACKING_COMPASS_RESET("Compass reset."),;
+	TRACKING_COMPASS_RESET("Compass reset."),
+	CONSOLE("console"),
+	;
 
 	public Object value;
 

@@ -14,7 +14,10 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import me.Indyuce.bh.api.Bounty;
+import me.Indyuce.bh.api.BountyCreateEvent;
 import me.Indyuce.bh.reflect.Json;
+import me.Indyuce.bh.resource.BountyCause;
 import me.Indyuce.bh.resource.Items;
 import me.Indyuce.bh.resource.SpecialChar;
 
@@ -150,9 +153,9 @@ public class Utils implements Listener {
 		for (int j = 30; j > 0; j--) {
 			int ntlu = j * levels.getInt("bounties-needed-to-lvl-up");
 			if (config.getInt("claimed-bounties") >= ntlu && config.getInt("level") < j) {
-				p.sendMessage(Main.plugin.chatWindow);
-				p.sendMessage("§e" + msg("level-up").replace("%level%", "" + j));
-				p.sendMessage("§e" + msg("level-up-2").replace("%bounties%", "" + levels.getInt("bounties-needed-to-lvl-up")));
+				p.sendMessage(msg("chat-bar"));
+				p.sendMessage(ChatColor.YELLOW + msg("level-up").replace("%level%", "" + j));
+				p.sendMessage(ChatColor.YELLOW + msg("level-up-2").replace("%bounties%", "" + levels.getInt("bounties-needed-to-lvl-up")));
 
 				double money = levels.getDouble("reward.money.base") + (j * levels.getDouble("reward.money.per-lvl"));
 				List<String> unlocked = config.getStringList("unlocked");
@@ -192,7 +195,7 @@ public class Utils implements Listener {
 					rewards_format += "\n§e" + msg("level-up-reward") + applySpecialChars(s);
 				rewards_format = rewards_format.substring(1);
 
-				Json.json(p, "{\"text\":\"§e" + msg("level-up-rewards") + "\",\"hoverEvent\":{\"action\":\"show_text\",\"value\":{\"text\":\"\",\"extra\":[{\"text\":\"" + rewards_format + "\",\"color\":\"white\"}]}}}");
+				Json.json(p, "{\"text\":\"" + ChatColor.YELLOW + msg("level-up-rewards") + "\",\"hoverEvent\":{\"action\":\"show_text\",\"value\":{\"text\":\"\",\"extra\":[{\"text\":\"" + rewards_format + "\",\"color\":\"white\"}]}}}");
 
 				Main.plugin.economy.depositPlayer(p, money);
 				config.set("level", j);
@@ -230,8 +233,8 @@ public class Utils implements Listener {
 	// ALERTS
 	public static void bountyClaimedAlert(Player p, Player t) {
 		FileConfiguration config = ConfigData.getCD(Main.plugin, "", "data");
-		p.sendMessage(Main.plugin.chatWindow);
-		p.sendMessage("§e" + msg("bounty-claimed-by-you").replace("%target%", t.getName()).replace("%reward%", format(config.getDouble(t.getName() + ".reward"))));
+		p.sendMessage(msg("chat-bar"));
+		p.sendMessage(ChatColor.YELLOW + msg("bounty-claimed-by-you").replace("%target%", t.getName()).replace("%reward%", format(config.getDouble(t.getName() + ".reward"))));
 		for (String h_format : config.getStringList(t.getName() + ".hunters")) {
 			Player h = Bukkit.getPlayer(h_format);
 			if (h == null)
@@ -242,24 +245,35 @@ public class Utils implements Listener {
 		for (Player t1 : Bukkit.getOnlinePlayers()) {
 			VersionUtils.sound(t1, "ENTITY_PLAYER_LEVELUP", 1, 2);
 			if (t1 != p)
-				t1.sendMessage("§e" + msg("bounty-claimed").replace("%reward%", format(config.getDouble(t.getName() + ".reward"))).replace("%killer%", (p_config.getString("current-title").equals("") ? "" : "§5[" + applySpecialChars(p_config.getString("current-title")) + "] ") + ChatColor.getLastColors(msg("bounty-claimed").split(Pattern.quote("%killer%"))[0]) + p.getName()).replace("%target%", t.getName()));
+				t1.sendMessage(ChatColor.YELLOW + msg("bounty-claimed").replace("%reward%", format(config.getDouble(t.getName() + ".reward"))).replace("%killer%", (p_config.getString("current-title").equals("") ? "" : "§5[" + applySpecialChars(p_config.getString("current-title")) + "] ") + ChatColor.getLastColors(msg("bounty-claimed").split(Pattern.quote("%killer%"))[0]) + p.getName()).replace("%target%", t.getName()));
 		}
 	}
 
-	public static void newBountyAlert(Player p, Player t) {
+	public static void newBountyAlert(BountyCreateEvent e) {
+		Bounty b = e.getBounty();
 		FileConfiguration config = ConfigData.getCD(Main.plugin, "", "data");
-		double reward = config.getDouble(t.getName() + ".reward");
-		VersionUtils.sound(t, "ENTITY_ENDERMEN_HURT", 1, 0);
-		if (p != t)
-			t.sendMessage("§c" + msg("new-bounty-on-you").replace("%creator%", p.getName()));
-		p.sendMessage(Main.plugin.chatWindow);
-		p.sendMessage("§e" + msg("bounty-created").replace("%target%", t.getName()));
-		p.sendMessage("§e" + msg("bounty-explain").replace("%reward%", "" + reward));
-		for (Player t1 : Bukkit.getOnlinePlayers()) {
-			if (t1 != t)
-				VersionUtils.sound(t1, "ENTITY_PLAYER_LEVELUP", 1, 2);
-			if (t1 != t && t1 != p)
-				t1.sendMessage("§e" + msg("new-bounty-on-player").replace("%creator%", p.getName()).replace("%target%", t.getName()).replace("%reward%", format(reward)));
+		double reward = config.getDouble(b.getTarget().getName() + ".reward");
+
+		String toOnline = e.getCause() == BountyCause.PLAYER ? ChatColor.YELLOW + msg("new-bounty-on-player").replace("%creator%", b.getCreator().getName()).replace("%target%", b.getTarget().getName()).replace("%reward%", format(reward)) :
+			(e.getCause() == BountyCause.AUTO_BOUNTY ? ChatColor.RED + msg("new-bounty-on-player-illegal").replace("%target%", b.getTarget().getName()).replace("%reward%", format(reward)) :
+				ChatColor.RED + msg("new-bounty-on-player-undefined").replace("%target%", b.getTarget().getName()).replace("%reward%", format(reward)));
+		String toTarget = e.getCause() == BountyCause.PLAYER ? ChatColor.RED + msg("new-bounty-on-you").replace("%creator%", b.getCreator().getName()) :
+			(e.getCause() == BountyCause.AUTO_BOUNTY ? ChatColor.RED + msg("new-bounty-on-you-illegal") :
+				ChatColor.RED + msg("new-bounty-on-you-undefined"));
+		
+		for (Player t : Bukkit.getOnlinePlayers()) {
+			if (b.getTarget() == t) {
+				VersionUtils.sound(t, "ENTITY_ENDERMEN_HURT", 1, 0);
+				t.sendMessage(toTarget);
+			} else if (b.getCreator() == t) {
+				VersionUtils.sound(t, "ENTITY_PLAYER_LEVELUP", 1, 2);
+				t.sendMessage(msg("chat-bar"));
+				t.sendMessage(ChatColor.YELLOW + msg("bounty-created").replace("%target%", b.getTarget().getName()));
+				t.sendMessage(ChatColor.YELLOW + msg("bounty-explain").replace("%reward%", "" + reward));
+			} else {
+				VersionUtils.sound(t, "ENTITY_PLAYER_LEVELUP", 1, 2);
+				t.sendMessage(toOnline);
+			}
 		}
 	}
 
@@ -273,23 +287,10 @@ public class Utils implements Listener {
 			t.sendMessage(ChatColor.YELLOW + msg("upped-bounty").replace("%player%", name).replace("%reward%", format(newReward)));
 	}
 
-	public static void autoBountyAlert(Player t) {
-		FileConfiguration config = ConfigData.getCD(Main.plugin, "", "data");
-		double reward = config.getDouble(t.getName() + ".reward");
-		t.sendMessage("§c" + msg("illegal-kill"));
-		VersionUtils.sound(t, "ENTITY_ENDERMEN_HURT", 1, 0);
-		for (Player t1 : Bukkit.getOnlinePlayers()) {
-			if (t1 != t)
-				VersionUtils.sound(t1, "ENTITY_PLAYER_LEVELUP", 1, 2);
-			if (t1 != t)
-				t1.sendMessage("§e" + msg("auto-bounty").replace("%target%", t.getName()).replace("%reward%", format(reward)));
-		}
-	}
-
 	public static void bountyExpired(String name) {
 		for (Player t1 : Bukkit.getOnlinePlayers()) {
 			VersionUtils.sound(t1, "ENTITY_VILLAGER_NO", 1, 2);
-			t1.sendMessage("§e" + msg("bounty-expired").replace("%target%", name));
+			t1.sendMessage(ChatColor.YELLOW + msg("bounty-expired").replace("%target%", name));
 		}
 	}
 }

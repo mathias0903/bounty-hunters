@@ -2,6 +2,7 @@ package me.Indyuce.bh.command;
 
 import java.util.List;
 
+import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -15,7 +16,6 @@ import me.Indyuce.bh.VersionUtils;
 import me.Indyuce.bh.gui.BountiesGUI;
 import me.Indyuce.bh.gui.LeaderboardGUI;
 import me.Indyuce.bh.reflect.Json;
-import net.md_5.bungee.api.ChatColor;
 
 public class BountiesCommand implements CommandExecutor {
 
@@ -68,7 +68,7 @@ public class BountiesCommand implements CommandExecutor {
 			config.set("current-title", select);
 			ConfigData.saveCD(Main.plugin, config, "/userdata", p.getUniqueId().toString());
 			VersionUtils.sound(p, "ENTITY_PLAYER_LEVELUP", 1, 2);
-			p.sendMessage("§e" + Utils.msg("successfully-selected").replace("%item%", Utils.applySpecialChars(select)));
+			p.sendMessage(ChatColor.YELLOW + Utils.msg("successfully-selected").replace("%item%", Utils.applySpecialChars(select)));
 		} else if (args[0].equalsIgnoreCase("quote")) {
 			if (!Main.plugin.checkPl(sender, true))
 				return true;
@@ -91,7 +91,7 @@ public class BountiesCommand implements CommandExecutor {
 			config.set("current-quote", select);
 			ConfigData.saveCD(Main.plugin, config, "/userdata", p.getUniqueId().toString());
 			VersionUtils.sound(p, "ENTITY_PLAYER_LEVELUP", 1, 2);
-			p.sendMessage("§e" + Utils.msg("successfully-selected").replace("%item%", select));
+			p.sendMessage(ChatColor.YELLOW + Utils.msg("successfully-selected").replace("%item%", select));
 		} else if (args[0].equalsIgnoreCase("titles")) {
 			if (!Main.plugin.checkPl(sender, true))
 				return true;
@@ -101,8 +101,8 @@ public class BountiesCommand implements CommandExecutor {
 				return true;
 			}
 
-			p.sendMessage(Main.plugin.chatWindow);
-			p.sendMessage("§e" + Utils.msg("unlocked-titles"));
+			p.sendMessage(Utils.msg("chat-bar"));
+			p.sendMessage(ChatColor.YELLOW + Utils.msg("unlocked-titles"));
 			FileConfiguration levels = ConfigData.getCD(Main.plugin, "", "levels");
 			FileConfiguration config = ConfigData.getCD(Main.plugin, "/userdata", p.getUniqueId().toString());
 
@@ -122,8 +122,8 @@ public class BountiesCommand implements CommandExecutor {
 				return true;
 			}
 
-			p.sendMessage(Main.plugin.chatWindow);
-			p.sendMessage("§e" + Utils.msg("unlocked-quotes"));
+			p.sendMessage(Utils.msg("chat-bar"));
+			p.sendMessage(ChatColor.YELLOW + Utils.msg("unlocked-quotes"));
 			FileConfiguration levels = ConfigData.getCD(Main.plugin, "", "levels");
 			FileConfiguration config = ConfigData.getCD(Main.plugin, "/userdata", p.getUniqueId().toString());
 
@@ -140,7 +140,7 @@ public class BountiesCommand implements CommandExecutor {
 				return true;
 			}
 			Main.plugin.reloadConfig();
-			sender.sendMessage(Main.plugin.prefix + "Configuration file reloaded.");
+			sender.sendMessage(ChatColor.YELLOW + "Configuration file reloaded.");
 		}
 
 		return false;

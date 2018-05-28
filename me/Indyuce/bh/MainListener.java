@@ -29,6 +29,7 @@ import me.Indyuce.bh.api.Bounty;
 import me.Indyuce.bh.api.BountyClaimEvent;
 import me.Indyuce.bh.api.BountyCreateEvent;
 import me.Indyuce.bh.reflect.Title;
+import me.Indyuce.bh.resource.BountyCause;
 import me.Indyuce.bh.resource.Items;
 import me.Indyuce.bh.resource.UserdataParams;
 
@@ -145,6 +146,7 @@ public class MainListener implements Listener {
 			}
 
 			Utils.bountyClaimedAlert(p.getKiller(), p);
+
 			// death quote
 			if (Main.plugin.getConfig().getBoolean("enable-quotes-levels-titles")) {
 				String deathQuote = t_config.getString("current-quote");
@@ -158,9 +160,12 @@ public class MainListener implements Listener {
 				}
 			}
 
+			// save config
 			config.set(p.getName(), null);
 			ConfigData.saveCD(Main.plugin, config, "", "data");
-			if (Main.plugin.getConfig().getBoolean("drop-head")) {
+
+			// drop head
+			if (Main.plugin.getConfig().getBoolean("drop-head.enabled") && new Random().nextDouble() <= Main.plugin.getConfig().getDouble("drop-head.chance") / 100) {
 				ItemStack head = Items.PLAYER_HEAD.a().clone();
 				SkullMeta head_meta = (SkullMeta) head.getItemMeta();
 				head_meta.setDisplayName(head_meta.getDisplayName().replace("%name%", p.getName()));
@@ -175,14 +180,14 @@ public class MainListener implements Listener {
 				double reward = Main.plugin.getConfig().getDouble("auto-bounty.reward");
 
 				// API
-				BountyCreateEvent e1 = new BountyCreateEvent(new Bounty(null, t, reward));
+				BountyCreateEvent e1 = new BountyCreateEvent(new Bounty(null, t, reward), BountyCause.AUTO_BOUNTY);
 				Bukkit.getPluginManager().callEvent(e1);
 				if (e1.isCancelled())
 					return;
 
 				config.set(t.getName() + ".reward", reward);
 				ConfigData.saveCD(Main.plugin, config, "", "data");
-				Utils.autoBountyAlert(t);
+				Utils.newBountyAlert(e1);
 			}
 		}
 	}

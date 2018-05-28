@@ -28,8 +28,6 @@ public class Main extends JavaPlugin {
 	public Economy economy;
 
 	public static Main plugin;
-	public String chatWindow = "§e-----------------------------------------------------";
-	public String prefix = "§8[§eBH§8] §7";
 
 	public void onDisable() {
 		for (Player t : Bukkit.getOnlinePlayers())
